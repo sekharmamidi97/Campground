@@ -21,7 +21,7 @@ namespace ProjectDB
         const string Command_AssignEmployeeToProject = "13";
         const string Command_RemoveEmployeeFromProject = "14";
         const string Command_Quit = "q";
-        const string DatabaseConnection = "";
+        const string DatabaseConnection = @"Data Source=.\SQLExpress;Initial Catalog=Project;User ID=te_student;Password=techelevator";
 
         public void RunCLI()
         {

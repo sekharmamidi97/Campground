@@ -15,29 +15,46 @@ namespace Capstone.CLI
         const string databaseConnection = @"Data Source=.\SQLExpress;Initial Catalog=parks;User ID=te_student;Password=techelevator";
         public void RunCLI()
         {
-            GetAllParks();
-            string command = Console.ReadLine().ToLower();
-            int commandNumber = int.Parse(command);
-            if (command == "q")
+            int breaker = 1;
+            while (breaker != 55)
             {
-                return;
-            }
-            else
-            {
-                GetParkInfo(commandNumber);
-                Console.WriteLine("Select a Command: ");
-                Console.WriteLine("1) View Campgrounds");
-                Console.WriteLine("2) Search for Reservation");
-                Console.WriteLine("3) Return to Previous Screen");
 
-                string subCommand = Console.ReadLine();
-                int menuChoice = int.Parse(subCommand);
-                if (menuChoice == 1)
+                GetAllParks();
+                string command = Console.ReadLine().ToLower();
+                
+
+                if (command == "q")
                 {
-                    GetCampgroundNow(commandNumber);
-                    Console.WriteLine();
+                    break;
+                }
+                else
+                {
+                    int breakerTwo =  1;
+                    while (breakerTwo != 55)
+                    {
+
+                        int commandNumber = int.Parse(command);
+                        GetParkInfo(commandNumber);
+                        Console.WriteLine("Select a Command: ");
+                        Console.WriteLine("1) View Campgrounds");
+                        Console.WriteLine("2) Search for Reservation");
+                        Console.WriteLine("3) Return to Previous Screen");
+
+                        string subCommand = Console.ReadLine();
+                        int menuChoice = int.Parse(subCommand);
+                        if (menuChoice == 1)
+                        {
+                            GetCampgroundNow(commandNumber);
+                            Console.WriteLine();
+                        }
+                        else if (menuChoice == 3)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
+            return;
 
 
         }
@@ -65,6 +82,9 @@ namespace Capstone.CLI
             Console.WriteLine($"Established: {parkList[parkID - 1].Established}");
             Console.WriteLine($"Area: {parkList[parkID - 1].Area}");
             Console.WriteLine($"Visitors: {parkList[parkID - 1].Visitors}");
+            Console.WriteLine();
+            Console.WriteLine($"{parkList[parkID - 1].Description}");
+            Console.WriteLine();
 
 
         }

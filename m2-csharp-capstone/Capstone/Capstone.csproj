@@ -44,17 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLI\CLIHelper.cs" />
+    <Compile Include="CLI\ProjectCLI.cs" />
+    <Compile Include="DAL\CampgroundDAL.cs" />
+    <Compile Include="DAL\ParksDAL.cs" />
+    <Compile Include="DAL\SiteDAL.cs" />
+    <Compile Include="Models\Campground.cs" />
+    <Compile Include="Models\Parks.cs" />
+    <Compile Include="Models\Reservation.cs" />
+    <Compile Include="Models\Site.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="Models\App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CLI\" />
-    <Folder Include="DAL\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

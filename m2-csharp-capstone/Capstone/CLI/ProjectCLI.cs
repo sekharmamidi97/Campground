@@ -147,7 +147,7 @@ namespace Capstone.CLI
             Console.WriteLine("Site Id | Max Occupancy | Acessible | Max RV Size | Utilities");
             reservations.ForEach(res =>
             {
-                bool overlap = res.StartDate < end && start < res.EndDate;
+                bool overlap = (res.StartDate < end && start < res.EndDate) || (start < res.StartDate && res.StartDate < end) || (start < res.EndDate && res.EndDate < end) || (res.StartDate < start && res.EndDate > end);
                 if (overlap)
                 {
                     booked.Add(res);

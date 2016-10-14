@@ -16,6 +16,33 @@ namespace Capstone.DAL
         {
             connectionString = dBconnectionString;
         }
+
+        public Campground GetCampgroundById(int campgroundId)
+        {
+            Campground output = new Campground();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("Select * From Campground WHERE campground_id = @campground_id", conn);
+                    cmd.Parameters.AddWithValue("@campground_id", campgroundId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        output = GetCampgroundFromReader(reader);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw;
+            }
+            return output;
+        }
+
+ 
+
         public List<Campground> GetCampground(int parkId)
         {
             List<Campground> output = new List<Campground>();
@@ -29,13 +56,7 @@ namespace Capstone.DAL
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        Campground c = new Campground();
-                        c.Id = Convert.ToInt32(reader["campground_id"]);
-                        c.ParkId = Convert.ToInt32(reader["park_id"]);
-                        c.Name = Convert.ToString(reader["name"]);
-                        c.DateOpen = Convert.ToInt32(reader["open_from_mm"]);
-                        c.DateClosed = Convert.ToInt32(reader["open_to_mm"]);
-                        c.DailyFee = Convert.ToDecimal(reader["daily_fee"]);
+                        Campground c = GetCampgroundFromReader(reader);
                         output.Add(c);
                     }
                 }
@@ -46,6 +67,20 @@ namespace Capstone.DAL
             }
             return output;
 
+        }
+
+        private Campground GetCampgroundFromReader(SqlDataReader reader)
+        {
+
+            Campground c = new Campground();
+            c.Id = Convert.ToInt32(reader["campground_id"]);
+            c.ParkId = Convert.ToInt32(reader["park_id"]);
+            c.Name = Convert.ToString(reader["name"]);
+            c.DateOpen = Convert.ToInt32(reader["open_from_mm"]);
+            c.DateClosed = Convert.ToInt32(reader["open_to_mm"]);
+            c.DailyFee = Convert.ToDecimal(reader["daily_fee"]);
+
+            return c;
         }
 
         public string NumberToMonth(int i)

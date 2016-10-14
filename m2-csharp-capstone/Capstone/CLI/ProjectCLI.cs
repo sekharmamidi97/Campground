@@ -21,7 +21,7 @@ namespace Capstone.CLI
 
                 GetAllParks();
                 string command = Console.ReadLine().ToLower();
-                
+
 
                 if (command == "q")
                 {
@@ -29,7 +29,7 @@ namespace Capstone.CLI
                 }
                 else
                 {
-                    int breakerTwo =  1;
+                    int breakerTwo = 1;
                     while (breakerTwo != 55)
                     {
 
@@ -52,16 +52,31 @@ namespace Capstone.CLI
 
                             Console.WriteLine("1) Search For Available Reservations");
                             Console.WriteLine("2) Return to previous screen");
+
                             string choice = Console.ReadLine();
 
-                            while (choice !="1897")
+                            while (choice != "1897")
                             {
                                 if (choice == "1")
                                 {
+
                                     GetCampgroundNow(commandNumber);
+                                    Console.WriteLine("b) Back to Previous Menu");
                                     Console.WriteLine("Please input a Campground Id:");
-                                    string campgroundIdDtring = Console.ReadLine();
-                                    int campgroundIdInt = int.Parse(campgroundIdDtring);
+                                    string campgroundIdString = Console.ReadLine().ToLower();
+                                    if (campgroundIdString == "b")
+                                    {
+                                        break;
+                                    }
+                                    int campgroundIdInt = int.Parse(campgroundIdString);
+                                    //if (commandNumber == 2)
+                                    //{
+                                    //    campgroundIdInt = campgroundIdInt + 3;
+                                    //}
+                                    //else if(commandNumber == 3)
+                                    //{
+                                    //    campgroundIdInt = campgroundIdInt + 6;
+                                    //}
                                     Console.WriteLine();
                                     Console.WriteLine("Please input a start date for your reservation mm/dd/yyyy:");
                                     string startDateString = Console.ReadLine();
@@ -71,10 +86,22 @@ namespace Capstone.CLI
                                     string endDateString = Console.ReadLine();
                                     DateTime endDate = DateTime.Parse(endDateString);
                                     ReservationAvailable(campgroundIdInt, startDate, endDate);
+                                    Console.WriteLine($"Which site should be reserved(enter 0 to cancel)?");
+                                    string siteToBook = Console.ReadLine();
+                                    int siteToBookInt = int.Parse(siteToBook);
+                                    if (siteToBookInt == 0)
+                                    {
+                                        break;
+                                    }
+                                    Console.WriteLine("What name should the reservation be made under?");
+                                    string reservationName = Console.ReadLine();
+                                    Console.WriteLine();
+                                    ReserveSite(reservationName, siteToBookInt, startDate, endDate);
+                                    break;
 
 
                                 }
-                                else if(choice == "2")
+                                else if (choice == "2")
                                 {
                                     break;
                                 }
@@ -130,37 +157,64 @@ namespace Capstone.CLI
             int count = 0;
             CampgroundDAL dal = new CampgroundDAL(databaseConnection);
             List<Campground> currentCampList = dal.GetCampground(parkID);
-            Console.WriteLine("    Name | Open | Close |Cost");
+            Console.WriteLine("    Name | Open | Close | Daily Fee");
             currentCampList.ForEach(currentCamp =>
             {
                 count = count + 1;
-                Console.WriteLine($"{count}) {currentCamp.Name} | {dal.NumberToMonth(currentCamp.DateOpen)} | {dal.NumberToMonth(currentCamp.DateClosed)} | {currentCamp.DailyFee.ToString("c")}");
+                Console.WriteLine($"{currentCamp.Id}) {currentCamp.Name} | {dal.NumberToMonth(currentCamp.DateOpen)} | {dal.NumberToMonth(currentCamp.DateClosed)} | {currentCamp.DailyFee.ToString("c")}");
             });
 
         }
         private void ReservationAvailable(int campground, DateTime start, DateTime end)
         {
             SiteDAL dal = new SiteDAL(databaseConnection);
+            CampgroundDAL dal2 = new CampgroundDAL(databaseConnection);
+            Campground campgroundObject = dal2.GetCampgroundById(campground);
             List<Reservation> reservations = dal.GetReservation(campground);
+            //List<Reservation> booked = new List<Reservation>();
             List<Site> sites = dal.GetSites(campground);
-            List<Reservation> booked = new List<Reservation>();
-            Console.WriteLine("Site Id | Max Occupancy | Acessible | Max RV Size | Utilities");
+            List<Reservation> available = new List<Reservation>();
+            Console.WriteLine("Site Id | Max Occupancy | Accessible | Max RV Size | Utilities | Daily Fee");
             reservations.ForEach(res =>
             {
-                bool overlap = (res.StartDate < end && start < res.EndDate) || (start < res.StartDate && res.StartDate < end) || (start < res.EndDate && res.EndDate < end) || (res.StartDate < start && res.EndDate > end);
+                bool overlap = (end >= res.StartDate && end <= res.EndDate) ||
+                                (start >= res.StartDate && start <= res.EndDate) ||
+                                (start <= res.StartDate && end >= res.EndDate);
+
+                //bool overlap = (res.StartDate <= end && start <= res.EndDate) || 
+                //               (start <= res.StartDate && res.StartDate <= end) || 
+                //               (start <= res.EndDate && res.EndDate <= end) || 
+                //               (res.StartDate <= start && res.EndDate >= end);
                 if (overlap)
                 {
-                    booked.Add(res);
+                    sites.Remove(sites.Find(s => s.Id == res.SiteId));
                 }
-                else
-                {
-                    Console.WriteLine($"{res.SiteId} {sites[res.SiteId-1].MaxOccupancy} {sites[res.SiteId - 1].isAccessible} {sites[res.SiteId - 1].MaxRVLength} {sites[res.SiteId - 1].hasUtilities}"); 
-                }
+               
             });
-            
+            if (sites.Count == 0)
+            {
+                Console.WriteLine("I am sorry, there are no reservations available during your specified date range. Please try again.");
+            }
+
+            sites.ForEach(availableSite =>
+            {
+                Console.WriteLine($"{availableSite.Id} {availableSite.MaxOccupancy} {availableSite.isAccessible} {availableSite.MaxRVLength} {availableSite.hasUtilities} {campgroundObject.DailyFee}");
+
+            });
 
         }
-    }
+        private void ReserveSite(string name, int site, DateTime start, DateTime end)
+        {
+            SiteDAL dal = new SiteDAL(databaseConnection);
+            //List<Reservation> reservations = 
+            int makeRes = dal.MakeReservation(name, site, start, end);
+            //reservations.ForEach(res =>
+            //{
+            Console.WriteLine($"The reservation has been made and the confirmation id is {makeRes}");
+            //});
+            
+        }
 
+    }
 }
 

@@ -96,6 +96,44 @@ namespace Capstone.DAL
             }
             return output;
         }
+        public int MakeReservation(string name, int siteId, DateTime startDate, DateTime endDate)
+        {
+            int reservationNumber = 0;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("Insert into reservation(name, site_id, from_date, to_date) values (@name, @site_id, @from_date, @to_date)", conn);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@site_id", siteId);
+                    cmd.Parameters.AddWithValue("@from_date", startDate);
+                    cmd.Parameters.AddWithValue("@to_date", endDate);
+                    cmd.ExecuteNonQuery();
+                    cmd = new SqlCommand("Select * from reservation", conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Reservation r = new Reservation();
+                        r.Name = Convert.ToString(reader["name"]);
+                        r.SiteId = Convert.ToInt32(reader["site_id"]);
+                        r.StartDate = Convert.ToDateTime(reader["from_date"]);
+                        r.EndDate = Convert.ToDateTime(reader["to_date"]);
+                        r.Id = Convert.ToInt32(reader["reservation_id"]);
+                        reservationNumber = r.Id;
+                        
+                    }
+                }
+
+            }
+            catch (SqlException ex)
+            {
+                throw;
+            }
+            return reservationNumber;
+        }
 
     }
+   
+    
 }
